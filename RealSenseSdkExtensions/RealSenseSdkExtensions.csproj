@@ -48,6 +48,7 @@
     <Compile Include="RecognitionConfigurationExtension.cs" />
     <Compile Include="RecognitionFaceData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecognitionFaceDataFile.cs" />
     <Compile Include="RecognitionModuleDataExtension.cs" />
   </ItemGroup>
   <ItemGroup>
