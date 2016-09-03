@@ -29,7 +29,7 @@ namespace RealSenseSdkExtensions {
         public RecognitionFaceData(byte[] binaryData) {
             Id = BitConverter.ToInt32(binaryData, binaryData.Length - 5);
             Image = new Bitmap(128, 128);
-            for (int i = 0; i < binaryData.Length; i++) {
+            for (int i = 0; i < binaryData.Length - 8; i++) {
                 var color = Color.FromArgb(binaryData[i], binaryData[i], binaryData[i]);
                 var point = new Point(
                     i % 128,
@@ -37,6 +37,7 @@ namespace RealSenseSdkExtensions {
                 );
                 Image.SetPixel(point.X, point.Y, color);
             }
+            
             BinaryData = binaryData;
         }
 
