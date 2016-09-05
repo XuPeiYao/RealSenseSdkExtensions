@@ -53,7 +53,7 @@ namespace RealSenseSdkExtensions {
             while(reader.BaseStream.Position != reader.BaseStream.Length) {
                 buffer.Add(reader.ReadByte());
             }
-            return Load(buffer.ToArray());
+            return FromBinary(buffer.ToArray());
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace RealSenseSdkExtensions {
         /// </summary>
         /// <param name="binary">二進制陣列</param>
         /// <returns>臉部辨識資料結構陣列</returns>
-        public static RecognitionFaceData[] Load(
+        public static RecognitionFaceData[] FromBinary(
            byte[] binary) {
             return RecognitionFaceData.FromDatabaseBuffer(binary);
         }

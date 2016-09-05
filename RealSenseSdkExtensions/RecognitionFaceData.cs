@@ -16,10 +16,11 @@ namespace RealSenseSdkExtensions {
         /// </summary>
         public int Id { get; private set; }
 
+        private Lazy<Bitmap> _image { get; set; }
         /// <summary>
         /// 人臉辨識圖檔
         /// </summary>
-        public Bitmap Image { get; private set; }
+        public Bitmap Image => _image.Value;
 
         /// <summary>
         /// 未知欄位
@@ -34,16 +35,18 @@ namespace RealSenseSdkExtensions {
         public RecognitionFaceData(byte[] binaryData) {
             Id = BitConverter.ToInt32(binaryData, binaryData.Length - 5);
             UnknowField = binaryData.Skip(128 * 128).Take(4).ToArray();
-            Image = new Bitmap(128, 128);
-            for (int i = 0; i < binaryData.Length - 8; i++) {
-                var color = Color.FromArgb(binaryData[i], binaryData[i], binaryData[i]);
-                var point = new Point(
-                    i % 128,
-                    (int)Math.Floor(i / 128.0)
-                );
-                Image.SetPixel(point.X, point.Y, color);
-            }
-            
+            _image = new Lazy<Bitmap>(() => {
+                var result = new Bitmap(128, 128);
+                for (int i = 0; i < binaryData.Length - 8; i++) {
+                    var color = Color.FromArgb(binaryData[i], binaryData[i], binaryData[i]);
+                    var point = new Point(
+                        i % 128,
+                        (int)Math.Floor(i / 128.0)
+                    );
+                    result.SetPixel(point.X, point.Y, color);
+                }
+                return result;
+            });
             BinaryData = binaryData;
         }
 
