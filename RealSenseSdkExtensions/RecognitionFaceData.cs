@@ -15,7 +15,14 @@ namespace RealSenseSdkExtensions {
         /// <summary>
         /// 唯一識別號
         /// </summary>
-        public int Id { get; private set; }
+        public int Id {
+            get {
+                return BitConverter.ToInt32(BinaryData ,BinaryData.Length - 4);
+            }
+            set {
+                Array.Copy(BitConverter.GetBytes(value), 0, BinaryData, BinaryData.Length - 4, 4);
+            }
+        }
 
         private Lazy<Bitmap> _image { get; set; }
         /// <summary>
@@ -24,9 +31,16 @@ namespace RealSenseSdkExtensions {
         public Bitmap Image => _image.Value;
 
         /// <summary>
-        /// 未知欄位
+        /// 資料庫索引
         /// </summary>
-        public byte[] UnknowField { get; private set; }
+        public int Index {
+            get {
+                return BitConverter.ToInt32(BinaryData, BinaryData.Length - 8);
+            }
+            set {
+                Array.Copy(BitConverter.GetBytes(value),0, BinaryData,BinaryData.Length - 8, 4);
+            }
+        }
 
         /// <summary>
         /// 原始二進制資訊
@@ -34,8 +48,6 @@ namespace RealSenseSdkExtensions {
         public byte[] BinaryData { get; private set; }
 
         public RecognitionFaceData(byte[] binaryData) {
-            Id = BitConverter.ToInt32(binaryData, binaryData.Length - 4);
-            UnknowField = binaryData.Skip(128 * 128).Take(4).ToArray();
             _image = new Lazy<Bitmap>(() => {
                 var result = new Bitmap(128, 128);
                 for (int i = 0; i < binaryData.Length - 8; i++) {
