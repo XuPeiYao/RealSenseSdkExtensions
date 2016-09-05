@@ -10,6 +10,7 @@ namespace RealSenseSdkExtensions {
     /// <summary>
     /// 臉部辨識資料庫原始資料結構
     /// </summary>
+    [Serializable]
     public struct RecognitionFaceData {
         /// <summary>
         /// 唯一識別號
