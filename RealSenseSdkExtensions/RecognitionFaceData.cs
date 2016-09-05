@@ -33,7 +33,7 @@ namespace RealSenseSdkExtensions {
         public byte[] BinaryData { get; private set; }
 
         public RecognitionFaceData(byte[] binaryData) {
-            Id = BitConverter.ToInt32(binaryData, binaryData.Length - 5);
+            Id = BitConverter.ToInt32(binaryData, binaryData.Length - 4);
             UnknowField = binaryData.Skip(128 * 128).Take(4).ToArray();
             _image = new Lazy<Bitmap>(() => {
                 var result = new Bitmap(128, 128);
