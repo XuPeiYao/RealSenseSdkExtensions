@@ -17,18 +17,49 @@ namespace RealSenseSdkExtensions {
         /// </summary>
         public int Id {
             get {
-                return BitConverter.ToInt32(BinaryData ,BinaryData.Length - 4);
+                return BitConverter.ToInt32(BinaryData, BinaryData.Length - 4);
             }
             set {
                 Array.Copy(BitConverter.GetBytes(value), 0, BinaryData, BinaryData.Length - 4, 4);
             }
         }
 
-        private Lazy<Bitmap> _image { get; set; }
+        private Bitmap _image;
         /// <summary>
         /// 人臉辨識圖檔
         /// </summary>
-        public Bitmap Image => _image.Value;
+        public Bitmap Image {
+            get {
+                if (_image != null) return _image;
+                _image = new Bitmap(128, 128);
+                for (int i = 0; i < BinaryData.Length - 8; i++) {
+                    var color = Color.FromArgb(BinaryData[i], BinaryData[i], BinaryData[i]);
+                    var point = new Point(
+                        i % 128,
+                        (int)Math.Floor(i / 128.0)
+                    );
+                    _image.SetPixel(point.X, point.Y, color);
+                }
+                return _image;
+            }
+            set {
+                if (value.Size.Height != 128 || value.Size.Width != 128) {
+                    throw new ArgumentOutOfRangeException("圖片大小錯誤");
+                }
+                byte[] data = new byte[128 * 128];
+                for (int i = 0; i < data.Length; i++) {
+                    var point = new Point(
+                        i % 128,
+                        (int)Math.Floor(i / 128.0)
+                    );
+                    var color = value.GetPixel(point.X, point.Y);
+                    data[i] = (byte)((color.R * 0.3) +
+                              (color.G * 0.59) +
+                              (color.B * 0.11));
+                }
+                Array.Copy(data, 0, BinaryData, 0, data.Length);
+            }
+        }
 
         /// <summary>
         /// 資料庫索引
@@ -38,7 +69,7 @@ namespace RealSenseSdkExtensions {
                 return BitConverter.ToInt32(BinaryData, BinaryData.Length - 8);
             }
             set {
-                Array.Copy(BitConverter.GetBytes(value),0, BinaryData,BinaryData.Length - 8, 4);
+                Array.Copy(BitConverter.GetBytes(value), 0, BinaryData, BinaryData.Length - 8, 4);
             }
         }
 
@@ -48,19 +79,12 @@ namespace RealSenseSdkExtensions {
         public byte[] BinaryData { get; private set; }
 
         public RecognitionFaceData(byte[] binaryData) {
-            _image = new Lazy<Bitmap>(() => {
-                var result = new Bitmap(128, 128);
-                for (int i = 0; i < binaryData.Length - 8; i++) {
-                    var color = Color.FromArgb(binaryData[i], binaryData[i], binaryData[i]);
-                    var point = new Point(
-                        i % 128,
-                        (int)Math.Floor(i / 128.0)
-                    );
-                    result.SetPixel(point.X, point.Y, color);
-                }
-                return result;
-            });
-            BinaryData = binaryData;
+            if (binaryData == null) {
+                BinaryData = new byte[128 * 128 + 8];
+            } else {
+                BinaryData = binaryData;
+            }
+            _image = null;
         }
 
         /// <summary>
