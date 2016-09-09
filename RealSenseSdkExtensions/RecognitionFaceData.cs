@@ -11,11 +11,24 @@ namespace RealSenseSdkExtensions {
     /// 臉部辨識資料庫原始資料結構
     /// </summary>
     [Serializable]
-    public struct RecognitionFaceData {
+    public class RecognitionFaceData {
+        public static int Length = 16392;
         /// <summary>
-        /// 唯一識別號
+        /// 資料庫主鍵
         /// </summary>
-        public int Id {
+        public int PrimaryKey {
+            get {
+                return BitConverter.ToInt32(BinaryData, BinaryData.Length - 8);
+            }
+            set {
+                Array.Copy(BitConverter.GetBytes(value), 0, BinaryData, BinaryData.Length - 8, 4);
+            }
+        }
+
+        /// <summary>
+        /// 資料庫外來鍵(使用者ID)
+        /// </summary>
+        public int ForeignKey {
             get {
                 return BitConverter.ToInt32(BinaryData, BinaryData.Length - 4);
             }
@@ -62,29 +75,21 @@ namespace RealSenseSdkExtensions {
         }
 
         /// <summary>
-        /// 資料庫索引
-        /// </summary>
-        public int Index {
-            get {
-                return BitConverter.ToInt32(BinaryData, BinaryData.Length - 8);
-            }
-            set {
-                Array.Copy(BitConverter.GetBytes(value), 0, BinaryData, BinaryData.Length - 8, 4);
-            }
-        }
-
-        /// <summary>
         /// 原始二進制資訊
         /// </summary>
         public byte[] BinaryData { get; private set; }
 
-        public RecognitionFaceData(byte[] binaryData) {
+        public RecognitionFaceData(byte[] binaryData = null) {
             if (binaryData == null) {
                 BinaryData = new byte[128 * 128 + 8];
             } else {
                 BinaryData = binaryData;
             }
             _image = null;
+        }
+
+        public void UpdateDatabaseBuffer(byte[] binary) {
+            FaceDatabaseManager.UpdateBuffer(binary, this);
         }
 
         /// <summary>
@@ -95,10 +100,12 @@ namespace RealSenseSdkExtensions {
         public static RecognitionFaceData[] FromDatabaseBuffer(byte[] binaryData) {
             List<RecognitionFaceData> result = new List<RecognitionFaceData>();
 
-            var resultLength = 16392;
+            var resultLength = RecognitionFaceData.Length;
             for (int i = 0; i < binaryData.Length; i += resultLength) {
                 byte[] itemRawData = binaryData.Skip(i).Take(resultLength).ToArray();
-                result.Add(new RecognitionFaceData(itemRawData));
+                var newItem = new RecognitionFaceData(itemRawData);
+                if (newItem.PrimaryKey == -1) continue;
+                result.Add(newItem);
             }
 
             return result.ToArray();

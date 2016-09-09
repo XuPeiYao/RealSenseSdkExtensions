@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FaceDatabaseManager.cs" />
     <Compile Include="RecognitionConfigurationExtension.cs" />
     <Compile Include="RecognitionFaceData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
