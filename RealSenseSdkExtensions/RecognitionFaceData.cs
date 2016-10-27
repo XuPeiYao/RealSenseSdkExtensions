@@ -57,7 +57,8 @@ namespace RealSenseSdkExtensions {
             }
             set {
                 if (value.Size.Height != 128 || value.Size.Width != 128) {
-                    throw new ArgumentOutOfRangeException("圖片大小錯誤");
+                    //throw new ArgumentOutOfRangeException("圖片大小錯誤");
+                    value = new Bitmap(value, 128, 128);
                 }
                 byte[] data = new byte[128 * 128];
                 for (int i = 0; i < data.Length; i++) {
